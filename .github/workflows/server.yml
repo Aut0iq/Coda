@@ -58,16 +58,19 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Версия
+      - name: Версия и владелец
         id: v
-        run: echo "version=$(cat server/deploy/VERSION)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=$(cat server/deploy/VERSION)" >> "$GITHUB_OUTPUT"
+          # имя образа Docker — только в нижнем регистре, а владелец на GitHub может быть «Aut0iq»
+          echo "owner=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6
         with:
           context: server/api
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/music-hub-api:latest
-            ghcr.io/${{ github.repository_owner }}/music-hub-api:${{ steps.v.outputs.version }}
+            ghcr.io/${{ steps.v.outputs.owner }}/music-hub-api:latest
+            ghcr.io/${{ steps.v.outputs.owner }}/music-hub-api:${{ steps.v.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
