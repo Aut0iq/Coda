@@ -501,6 +501,44 @@ async def api_search(request: web.Request) -> web.Response:
          "fans": a.get("nb_fan", 0)} for a in artists]})
 
 
+FIND_ARTISTS = 8                # для стольких исполнителей сверяемся с Navidrome за один поиск
+
+
+async def api_find(request: web.Request) -> web.Response:
+    """Поиск песен и альбомов для плеера: что из найденного уже лежит в библиотеке."""
+    h = hub_of(request)
+    q = (request.query.get("q") or "").strip()
+    if len(q) < 2:
+        return web.json_response({"tracks": [], "albums": []})
+    try:
+        tracks, albums = await sources.search_catalog(q)
+    except Exception as exc:
+        return bad(str(exc), 502)
+
+    def who(x: dict) -> str:
+        return (x.get("artist") or {}).get("name") or ""
+
+    artists = [a for a in dict.fromkeys(who(x) for x in tracks + albums) if a][:FIND_ARTISTS]
+    known = await library.library_for(set(artists))
+    have_albums = {library._norm(v) for v in known.values() if v}
+    return web.json_response({
+        "tracks": [{
+            "id": str(t["id"]), "title": t.get("title") or "", "artist": who(t),
+            "album": (t.get("album") or {}).get("title") or "",
+            "album_id": str((t.get("album") or {}).get("id") or ""),
+            "duration": int(t.get("duration") or 0),
+            "cover": (t.get("album") or {}).get("cover_medium") or "",
+            "owned": library.song_key(who(t), t.get("title") or "") in known,
+        } for t in tracks],
+        "albums": [{
+            "id": str(a["id"]), "title": a.get("title") or "", "artist": who(a),
+            "cover": a.get("cover_medium") or "", "total": int(a.get("nb_tracks") or 0),
+            "kind": a.get("record_type") or "album",
+            "owned": h.store.has_album(str(a["id"])) or library._norm(a.get("title") or "") in have_albums,
+        } for a in albums],
+    })
+
+
 async def api_albums(request: web.Request) -> web.Response:
     h = hub_of(request)
     try:
@@ -573,15 +611,18 @@ async def api_enqueue(request: web.Request) -> web.Response:
     h = hub_of(request)
     body = await body_json(request)
     album_id, url, token = body.get("album_id"), body.get("url"), body.get("token")
+    track_id = body.get("track_id")
     try:
         if token and (hit := h.resolved.pop(str(token), None)):
             job = hit[1]                     # уже разобранная ссылка из /api/resolve
         elif album_id:
             job = await get_album_job(str(album_id))
+        elif track_id:
+            job = await sources.get_track_job(str(track_id))
         elif url:
             job = await sources.resolve_link(str(url))
         else:
-            return bad("нужен album_id, url или token")
+            return bad("нужен album_id, track_id, url или token")
     except Exception as exc:
         return bad(str(exc), 502)
     if body.get("ignore_dupes"):
@@ -815,6 +856,7 @@ def build_app(hub: Hub, token: str) -> web.Application:
     app.add_routes([
         web.get("/api/info", api_info),
         web.get("/api/search", api_search),
+        web.get("/api/find", api_find),
         web.get("/api/artist/{artist_id}/albums", api_albums),
         web.get("/api/album/{album_id}", api_album),
         web.get("/api/meta", api_meta),

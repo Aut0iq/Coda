@@ -165,6 +165,70 @@ class ApiCase(unittest.IsolatedAsyncioTestCase):
         finally:
             main.get_album_job = orig
 
+    async def test_find_marks_what_is_already_in_library(self):
+        orig_search, orig_lib = sources.search_catalog, library.library_for
+        seen = {}
+
+        async def fake_search(query, limit=12):
+            return ([{"id": 1, "title": "Have It", "duration": 200, "artist": {"name": "Art"},
+                      "album": {"id": 10, "title": "Alb", "cover_medium": "c1"}},
+                     {"id": 2, "title": "Miss It", "duration": 180, "artist": {"name": "Art"},
+                      "album": {"id": 11, "title": "Other", "cover_medium": "c2"}}],
+                    [{"id": 10, "title": "Alb", "nb_tracks": 9, "record_type": "album",
+                      "artist": {"name": "Art"}, "cover_medium": "c1"},
+                     {"id": 11, "title": "Other", "nb_tracks": 3, "record_type": "ep",
+                      "artist": {"name": "Art"}, "cover_medium": "c2"}])
+
+        async def fake_library(artists):
+            seen["artists"] = artists
+            return {library.song_key("Art", "Have It"): "Alb"}
+
+        sources.search_catalog, library.library_for = fake_search, fake_library
+        try:
+            self.assertEqual(await (await self.client.get("/api/find?q=a", headers=H)).json(),
+                             {"tracks": [], "albums": []})
+            body = await (await self.client.get("/api/find?q=art", headers=H)).json()
+        finally:
+            sources.search_catalog, library.library_for = orig_search, orig_lib
+        self.assertEqual(seen["artists"], {"Art"})
+        self.assertEqual([(t["id"], t["owned"]) for t in body["tracks"]], [("1", True), ("2", False)])
+        self.assertEqual(body["tracks"][1], {"id": "2", "title": "Miss It", "artist": "Art", "album": "Other",
+                                             "album_id": "11", "duration": 180, "cover": "c2", "owned": False})
+        self.assertEqual([(a["id"], a["kind"], a["total"], a["owned"]) for a in body["albums"]],
+                         [("10", "album", 9, True), ("11", "ep", 3, False)])
+
+    async def test_find_reports_catalog_failure(self):
+        orig = sources.search_catalog
+
+        async def boom(query, limit=12):
+            raise RuntimeError("Deezer: quota")
+
+        sources.search_catalog = boom
+        try:
+            r = await self.client.get("/api/find?q=art", headers=H)
+        finally:
+            sources.search_catalog = orig
+        self.assertEqual((r.status, (await r.json())["error"]), (502, "Deezer: quota"))
+
+    async def test_enqueue_single_track(self):
+        orig = sources.get_track_job
+
+        async def fake(track_id):
+            job = fake_job(jid="trk" + track_id, album=None)
+            job["kind"] = "track"
+            return job
+
+        sources.get_track_job = fake
+        try:
+            r = await self.client.post("/api/enqueue", headers=H, json={"track_id": 7})
+            body = await r.json()
+            self.assertEqual((r.status, body["job"]), (200, "trk7"))
+            job = await (await self.client.get(f"/api/job/{body['job']}", headers=H)).json()
+            self.assertEqual(job["kind"], "track")
+            self.assertNotIn("items", job)
+        finally:
+            sources.get_track_job = orig
+
     async def test_enqueue_requires_something(self):
         r = await self.client.post("/api/enqueue", headers=H, json={})
         self.assertEqual(r.status, 400)

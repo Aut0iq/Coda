@@ -45,6 +45,14 @@ export default function HubScreen({ server, secrets, onExit, onUpdate, onRemove,
     Alert.alert('Скопировано', label);
   };
 
+  // vici сам сохраняет адрес и токен, когда его открывают по этой ссылке
+  const connectVici = () => {
+    const link = `vici://coda?url=${encodeURIComponent(server.api)}&token=${encodeURIComponent(secrets.token)}`;
+    Linking.openURL(link).catch(() => Alert.alert(
+      'vici не открылся',
+      'Похоже, vici не установлен на этом телефоне. Поставь его или впиши адрес и токен в настройках vici вручную.'));
+  };
+
   if (failed) {
     return (
       <View style={s.fail}>
@@ -109,6 +117,16 @@ export default function HubScreen({ server, secrets, onExit, onUpdate, onRemove,
               Музыка уходит на {server.remote.user}@{server.remote.host} в папку {server.remote.musicDir}.
             </Muted>
           ) : null}
+          <Text style={s.h}>Поиск в vici</Text>
+          <Muted style={{ marginBottom: 10 }}>
+            vici сможет искать здесь песни, которых ещё нет в библиотеке, и ставить их на скачивание прямо из поиска.
+            На компьютере впиши адрес и токен в настройках vici вручную.
+          </Muted>
+          <Card>
+            <Line label="Адрес Coda" value={server.api} onCopy={() => copy('Адрес', server.api)} />
+            <Line label="Токен" value="••••••••••••" onCopy={() => copy('Токен', secrets.token)} />
+          </Card>
+          <Btn title="Подключить vici" kind="gold" onPress={connectVici} style={{ marginBottom: 18 }} />
           <Btn title="Обновить сервер" onPress={() => { setMenu(false); onUpdate(); }} style={{ marginBottom: 10 }} />
           <Btn title="Убрать из приложения" kind="bad" onPress={() => Alert.alert(
             'Убрать сервер из приложения?',

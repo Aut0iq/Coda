@@ -76,6 +76,15 @@ async def search_artists(name: str, limit: int = 8) -> list[dict]:
     return data.get("data", [])
 
 
+async def search_catalog(query: str, limit: int = 12) -> tuple[list[dict], list[dict]]:
+    """Песни и альбомы по строке запроса — для поиска из плеера."""
+    tracks, albums = await asyncio.gather(
+        dz_get("/search/track", {"q": query, "limit": limit}),
+        dz_get("/search/album", {"q": query, "limit": limit}),
+    )
+    return tracks.get("data", []), albums.get("data", [])
+
+
 async def get_albums(artist_id: str) -> list[dict]:
     """Альбомы артиста: альбомы -> EP -> синглы, без дублей по названию."""
     cached = _albums_cache.get(artist_id)
