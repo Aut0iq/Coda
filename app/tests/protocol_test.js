@@ -143,6 +143,7 @@ eq(JSON.parse(inp), { host: 'h', port: 2200, user: 'u', password: 'p"a\'ss\\', m
     '',
   ].join('\n');
   await Deno.writeTextFile(`${T3}/docker`, fakeDocker);
+  if (!isWin) await Deno.chmod(`${T3}/docker`, 0o755);       // в Linux скрипт без бита исполнения bash в PATH не найдёт
   const runScript = async () => {
     const script = remoteSetupScript(T3);
     const p = new Deno.Command(bashBin(), { args: ['-c', script], stdin: 'piped', stdout: 'piped', stderr: 'piped',
