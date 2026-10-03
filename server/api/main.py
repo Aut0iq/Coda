@@ -25,7 +25,7 @@ from pathlib import Path
 import httpx
 from aiohttp import web
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 API_LEVEL = 1                   # растёт, когда API ломает совместимость с приложением
 
 DATA_DIR = Path(os.environ.get("HUB_DATA", "/data"))
