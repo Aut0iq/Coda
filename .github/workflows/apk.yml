@@ -1,21 +1,29 @@
 name: apk
 
+# Тег v* → APK под каждую архитектуру + универсальный → страница релиза.
+# Вручную (Actions → apk → Run workflow) — те же сборки, но без релиза: файлы лежат в Artifacts.
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
-    inputs:
-      abis:
-        description: 'ABI (arm64-v8a — почти все телефоны; добавь x86_64 для эмулятора)'
-        default: 'arm64-v8a'
 
 permissions:
   contents: write
 
 jobs:
   build:
+    name: apk (${{ matrix.name }})
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: arm64-v8a,   abis: arm64-v8a }
+          - { name: armeabi-v7a, abis: armeabi-v7a }
+          - { name: x86_64,      abis: x86_64 }
+          - { name: x86,         abis: x86 }
+          - { name: universal,   abis: 'armeabi-v7a,arm64-v8a,x86,x86_64' }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,11 +34,20 @@ jobs:
         with: { deno-version: v2.x }
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Версия
+        id: ver
+        run: |
+          VER="$(node -p "require('./app/package.json').version")"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          # релиз по тегу обязан совпадать с версией приложения, иначе в APK будет одна версия, а на странице — другая
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$VER" ]; then
+            echo "::error::Тег $GITHUB_REF_NAME не совпадает с версией приложения v$VER (app/package.json)"
+            exit 1
+          fi
+
       - name: Зависимости (postinstall собирает пакет сервера в приложение)
         working-directory: app
-        run: |
-          npm install
-          npx expo install --fix
+        run: npm install
 
       - name: Тесты приложения
         working-directory: app
@@ -38,29 +55,56 @@ jobs:
 
       - name: Нативный проект
         working-directory: app
-        run: npx expo prebuild --platform android --clean
+        run: npx expo prebuild --platform android --clean --no-install
 
-      - name: Сборка APK
+      - name: Сборка APK (${{ matrix.abis }})
         working-directory: app/android
         run: |
-          ABIS="${{ github.event.inputs.abis || 'arm64-v8a' }}"
-          ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures="$ABIS"
+          ./gradlew assembleRelease --no-daemon \
+            -PreactNativeArchitectures="${{ matrix.abis }}" \
+            -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g"
 
       - name: Имя файла
         id: apk
         run: |
-          VER="$(node -p "require('./app/package.json').version")"
-          NAME="coda-${VER}.apk"
+          NAME="coda-${{ steps.ver.outputs.version }}-${{ matrix.name }}.apk"
           cp app/android/app/build/outputs/apk/release/app-release.apk "$NAME"
+          # что за архитектуры внутри — видно в журнале сборки
+          unzip -l "$NAME" | grep -oE 'lib/[a-z0-9_-]+/libhermes\.so' | sort -u
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: coda-apk
+          name: apk-${{ matrix.name }}
           path: ${{ steps.apk.outputs.name }}
+          if-no-files-found: error
 
-      - name: Релиз
-        if: startsWith(github.ref, 'refs/tags/')
+  release:
+    name: release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: apk-*
+          merge-multiple: true
+          path: dist
+
+      - name: Контрольные суммы
+        working-directory: dist
+        run: |
+          sha256sum coda-*.apk > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          test "$(ls coda-*.apk | wc -l)" -eq 5
+
+      - name: Страница релиза
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.apk.outputs.name }}
+          name: Coda ${{ github.ref_name }}
+          body_path: .github/release-notes.md
+          generate_release_notes: true
+          files: |
+            dist/coda-*.apk
+            dist/SHA256SUMS.txt

@@ -13,6 +13,7 @@
 ![Navidrome](https://img.shields.io/badge/works%20with-Navidrome-1d3b6e)
 [![vici](https://img.shields.io/badge/pairs%20with-vici-e0b457)](https://github.com/aut0iq/vici)
 ![status](https://img.shields.io/badge/status-beta-orange)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 </div>
 
@@ -63,9 +64,26 @@ in your Navidrome library with proper tags and covers.
    sees half-written files; after success the local copy is deleted.
 4. **Listen.** Point **[vici](https://github.com/aut0iq/vici)** (or any Subsonic client) at your Navidrome.
 
+## Download
+
+Grab the APK from the [**latest release**](https://github.com/aut0iq/Coda/releases/latest) — every release has a
+build for each CPU architecture, plus a universal one:
+
+| File | Choose it for |
+|---|---|
+| `coda-<version>-arm64-v8a.apk` | Almost every phone and tablet made after ~2017 — **start here** |
+| `coda-<version>-armeabi-v7a.apk` | Older 32-bit ARM devices |
+| `coda-<version>-x86_64.apk` | Android emulators on a PC, Chromebooks, x86 tablets |
+| `coda-<version>-x86.apk` | Old 32-bit x86 devices and emulators |
+| `coda-<version>-universal.apk` | Not sure which one? Works everywhere, ~4× bigger |
+
+Open the file on the device and allow “install unknown apps” for the app you opened it from. `SHA256SUMS.txt` is
+attached to verify the download. The APKs are signed with the standard Android debug key — fine for sideloading,
+not for Google Play.
+
 ## Quick start
 
-1. Get the APK (build it yourself — see below; release builds are produced by the `apk` workflow on a tag).
+1. Install the APK (see above) — or build it yourself (see below).
 2. Open **Coda**, tap *Connect server*, enter the IP / login / password of a fresh Linux server
    (tested on Ubuntu 24.04, other Debian-family systems should work; root or a user with `sudo`) and tap *Check server*.
 3. Choose the layout:
@@ -103,7 +121,8 @@ cd server/api && python -m unittest discover -s . -t . -p "test_*.py"     # 59 t
 deno run --allow-read server/api/tests/ui_test.js                          # mini-app rendering
 ```
 
-CI: `server` (tests, image to GHCR) on pushes to `server/**`; `apk` (build + release) on `v*` tags.
+CI: `server` (tests, image to GHCR) on pushes to `server/**`; `apk` builds one APK per architecture plus a universal one
+and publishes them to the release page when you push a `v*` tag (the tag must match the version in `app/package.json`).
 
 ## Repository layout
 
@@ -135,6 +154,10 @@ download server.
   SSH session's stdin, not as a command argument and not over HTTP.
 - Without HTTPS (ports 80/443 busy) the token travels in clear text; the app warns about it.
 - 10 wrong tokens in 10 minutes block the address for 5 minutes.
+
+## License
+
+[MIT](LICENSE) © 2026 aut0iq
 
 ## Responsible use
 
