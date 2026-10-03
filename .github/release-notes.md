@@ -6,7 +6,7 @@
 | `coda-<version>-armeabi-v7a.apk` | Older 32-bit ARM devices. Старые 32-битные ARM-устройства. |
 | `coda-<version>-x86_64.apk` | Android emulators on a PC, Chromebooks, x86 tablets. Эмуляторы на ПК, Chromebook, x86-планшеты. |
 | `coda-<version>-x86.apk` | Old 32-bit x86 devices and emulators. Старые 32-битные x86-устройства и эмуляторы. |
-| `coda-<version>-universal.apk` | Not sure? Works on all of the above, but the file is about four times bigger. Не уверен? Подойдёт везде, но файл примерно в четыре раза больше. |
+| `coda-<version>-universal.apk` | Not sure? Works on all of the above, but the file is about 2.5× bigger. Не уверен? Подойдёт везде, но файл примерно в 2,5 раза больше. |
 
 **Install · Установка:** open the APK on the device and allow “install unknown apps” for the app you opened it from.
 Откройте APK на устройстве и разрешите «установку из неизвестных источников» для приложения, из которого открываете файл.

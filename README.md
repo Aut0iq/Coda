@@ -75,7 +75,7 @@ build for each CPU architecture, plus a universal one:
 | `coda-<version>-armeabi-v7a.apk` | Older 32-bit ARM devices |
 | `coda-<version>-x86_64.apk` | Android emulators on a PC, Chromebooks, x86 tablets |
 | `coda-<version>-x86.apk` | Old 32-bit x86 devices and emulators |
-| `coda-<version>-universal.apk` | Not sure which one? Works everywhere, ~4× bigger |
+| `coda-<version>-universal.apk` | Not sure which one? Works everywhere, ~2.5× bigger |
 
 Open the file on the device and allow “install unknown apps” for the app you opened it from. `SHA256SUMS.txt` is
 attached to verify the download. The APKs are signed with the standard Android debug key — fine for sideloading,
