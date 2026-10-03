@@ -1,0 +1,23 @@
+# Режим «только скачивание»: наружу отдаётся только API и мини-апп (/mb/…).
+# Navidrome находится на другом сервере — плеер подключается к нему напрямую по его адресу.
+# HUB_ADDR:
+#   host.example.com или 1-2-3-4.sslip.io — HTTPS, сертификат Let's Encrypt выпускается сам
+#   http://:80                              — без HTTPS (запасной режим, когда 80/443 недоступны)
+{
+	admin off
+}
+
+{$HUB_ADDR} {
+	encode zstd gzip
+
+	handle /mb/* {
+		uri strip_prefix /mb
+		reverse_proxy api:8081 {
+			flush_interval -1
+		}
+	}
+
+	handle {
+		respond "Music Hub: Navidrome находится на другом сервере" 404
+	}
+}

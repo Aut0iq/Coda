@@ -1,0 +1,12 @@
+node_modules/
+.expo/
+# сгенерированные expo prebuild проекты — только в корне app/. Без «/» правило задело бы и
+# modules/hub-ssh/android/, где лежит исходный Kotlin-код SSH-модуля
+/android/
+/ios/
+dist/
+*.apk
+src/bundle.generated.js
+# артефакты сборки Gradle внутри локальных модулей
+modules/*/android/build/
+modules/*/android/.gradle/

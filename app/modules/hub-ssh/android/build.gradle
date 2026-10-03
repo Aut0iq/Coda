@@ -1,0 +1,31 @@
+apply plugin: 'com.android.library'
+
+group = 'expo.modules.hubssh'
+version = '0.1.0'
+
+def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+apply from: expoModulesCorePlugin
+applyKotlinExpoModulesCorePlugin()
+useCoreDependencies()
+useExpoPublishing()
+useDefaultAndroidSdkVersions()
+
+android {
+  namespace "expo.modules.hubssh"
+
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+    consumerProguardFiles 'consumer-rules.pro'
+  }
+
+  lintOptions {
+    abortOnError false
+  }
+}
+
+dependencies {
+  // Форк JSch с поддержкой rsa-sha2-*, ecdh и новых шифров. Старый com.jcraft:jsch:0.1.x
+  // не подключается к OpenSSH 8.8+ (там отключён ssh-rsa на SHA-1).
+  implementation 'com.github.mwiede:jsch:0.2.20'
+}

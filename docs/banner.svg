@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="t d">
+  <title id="t">Coda</title>
+  <desc id="d">Coda — self-hosted music downloader for Navidrome, set up from your phone</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1922"/>
+      <stop offset="1" stop-color="#0d0a0f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.16" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#e0b457" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#e0b457" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0b457"/>
+      <stop offset="1" stop-color="#4fc0ac"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="360" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="360" rx="28" fill="url(#glow)"/>
+  <rect x="0.5" y="0.5" width="1279" height="359" rx="27.5" fill="none" stroke="#34343d"/>
+
+  <!-- знак coda: круг, перечёркнутый крестом -->
+  <g fill="none" stroke="#e0b457" stroke-width="9" stroke-linecap="round">
+    <circle cx="190" cy="180" r="66"/>
+    <line x1="190" y1="76" x2="190" y2="284"/>
+    <line x1="86" y1="180" x2="294" y2="180"/>
+  </g>
+
+  <text x="350" y="206" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="124" font-weight="800" fill="#ebebee" letter-spacing="-2">Coda</text>
+  <text x="354" y="256" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" fill="#c9c9d1">Your own music server, set up from your phone.</text>
+  <text x="354" y="298" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="24" fill="#8e8e99">Свой музыкальный сервер — настройка прямо с телефона.</text>
+
+  <!-- эквалайзер -->
+  <g fill="url(#bar)" opacity="0.9">
+    <rect x="1010" y="196" width="14" height="52" rx="7"/>
+    <rect x="1036" y="150" width="14" height="98" rx="7"/>
+    <rect x="1062" y="112" width="14" height="136" rx="7"/>
+    <rect x="1088" y="170" width="14" height="78" rx="7"/>
+    <rect x="1114" y="128" width="14" height="120" rx="7"/>
+    <rect x="1140" y="186" width="14" height="62" rx="7"/>
+    <rect x="1166" y="146" width="14" height="102" rx="7"/>
+    <rect x="1192" y="204" width="14" height="44" rx="7"/>
+  </g>
+  <line x1="1000" y1="268" x2="1216" y2="268" stroke="#34343d" stroke-width="2"/>
+</svg>

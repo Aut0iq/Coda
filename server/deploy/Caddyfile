@@ -1,0 +1,25 @@
+# HUB_ADDR:
+#   host.example.com или 1-2-3-4.sslip.io — HTTPS, сертификат Let's Encrypt выпускается сам
+#   http://:80                              — без HTTPS (запасной режим, когда 80/443 недоступны)
+{
+	admin off
+}
+
+{$HUB_ADDR} {
+	encode zstd gzip
+
+	# API и мини-апп приложения: /mb/api/…, /mb/app/…
+	handle /mb/* {
+		uri strip_prefix /mb
+		reverse_proxy api:8081 {
+			flush_interval -1
+		}
+	}
+
+	# всё остальное — Navidrome: его адрес можно вписывать в любой Subsonic-клиент (vici и т.п.)
+	handle {
+		reverse_proxy navidrome:4533 {
+			flush_interval -1
+		}
+	}
+}

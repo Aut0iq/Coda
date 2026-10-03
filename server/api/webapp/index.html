@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Coda</title>
+<meta name="color-scheme" content="dark light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800&display=swap">
+<link rel="stylesheet" href="style.css?v=11">
+</head>
+<body>
+
+<div id="netbanner" class="netbanner" hidden></div>
+
+<main id="view-search" class="view is-open">
+  <div class="searchbar">
+    <input id="q" type="search" placeholder="Исполнитель или ссылка Deezer / Spotify / YouTube"
+           autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    <button id="q-clear" type="button" aria-label="Очистить">✕</button>
+  </div>
+
+  <div id="artists" class="artists" hidden></div>
+
+  <header id="artist-head" class="artist-head" hidden>
+    <button id="back-artists" class="linkish" type="button">Все исполнители</button>
+    <h2 id="artist-name"></h2>
+    <p id="artist-sub"></p>
+  </header>
+
+  <div id="albums" class="grid"></div>
+
+  <p id="search-empty" class="empty"></p>
+</main>
+
+<main id="view-queue" class="view">
+  <section id="active-wrap"></section>
+  <h2 class="section-title" id="pending-title" hidden>Ждут очереди</h2>
+  <ul id="pending" class="rows"></ul>
+  <p id="queue-empty" class="empty">Очередь пуста. Всё, что качается, показывается здесь
+     с прогрессом по трекам.</p>
+
+  <h2 class="section-title">Действия</h2>
+  <div class="actions">
+    <button id="btn-scan" class="btn blue" type="button">🔄 Пересканировать Navidrome</button>
+    <button id="btn-playlists" class="btn teal" type="button">🎧 Собрать плейлисты</button>
+    <button id="btn-cookies" class="btn" type="button">🔞 Cookies</button>
+  </div>
+  <div id="notice"></div>
+</main>
+
+<main id="view-library" class="view">
+  <section id="stats" class="stats"></section>
+  <div id="lib-filter" class="chips"></div>
+  <div id="lib-actions" class="actions lib-actions"></div>
+  <div id="library"></div>
+  <p id="library-empty" class="empty">Здесь появятся скачанные альбомы, сгруппированные
+     по исполнителям.</p>
+</main>
+
+<main id="view-more" class="view">
+  <div id="more"></div>
+</main>
+
+<nav class="tabs">
+  <button data-view="search" class="tab is-active" type="button">Поиск</button>
+  <button data-view="queue" class="tab" type="button">Очередь<span id="tab-badge" class="badge" hidden></span></button>
+  <button data-view="library" class="tab" type="button">Библиотека<span id="tab-dot" class="dot" hidden></span></button>
+  <button data-view="more" class="tab" type="button">Ещё<span id="tab-net" class="dot" hidden></span></button>
+</nav>
+
+<div id="sheet" class="sheet" hidden>
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet-body">
+    <div class="grip"></div>
+    <div id="sheet-content"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="ui.js?v=12"></script>
+<script src="app.js?v=12"></script>
+</body>
+</html>

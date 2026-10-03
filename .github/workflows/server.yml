@@ -1,0 +1,73 @@
+name: server
+
+on:
+  push:
+    branches: [main]
+    paths: ['server/**', '.github/workflows/server.yml']
+    tags: ['v*']
+  pull_request:
+    paths: ['server/**']
+  schedule:
+    - cron: '17 4 * * 1'      # по понедельникам: свежий yt-dlp — YouTube регулярно ломает загрузчики
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: denoland/setup-deno@v2
+        with: { deno-version: v2.x }
+      - name: Python-зависимости
+        run: pip install -r server/api/requirements.txt
+      - name: Тесты API
+        working-directory: server/api
+        run: python -m unittest discover -s . -t . -p "test_*.py"
+      - name: Тесты интерфейса
+        working-directory: server/api
+        run: deno run --no-prompt --allow-read tests/ui_test.js
+      - name: Синтаксис shell-скриптов
+        run: for f in server/deploy/*.sh; do bash -n "$f"; done
+      - name: compose и Caddyfile валидны (оба режима)
+        working-directory: server/deploy
+        run: |
+          export HUB_TOKEN=x ND_USER=u ND_PASS=p HUB_ADDR=example.com
+          docker compose -f docker-compose.yml config -q
+          docker compose -f docker-compose.remote.yml config -q
+          for cf in Caddyfile Caddyfile.remote; do
+            docker run --rm -e HUB_ADDR=example.com -v "$PWD/$cf:/etc/caddy/Caddyfile:ro" caddy:2 \
+              caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+          done
+
+  image:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Версия
+        id: v
+        run: echo "version=$(cat server/deploy/VERSION)" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v6
+        with:
+          context: server/api
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/music-hub-api:latest
+            ghcr.io/${{ github.repository_owner }}/music-hub-api:${{ steps.v.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

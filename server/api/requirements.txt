@@ -1,0 +1,5 @@
+aiohttp>=3.9
+httpx[socks]>=0.27
+mutagen>=1.47
+yt-dlp[default]
+asyncssh>=2.14

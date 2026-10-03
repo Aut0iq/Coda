@@ -1,0 +1,45 @@
+# Music Hub, режим «только скачивание»: Navidrome стоит на ДРУГОМ сервере.
+# Здесь — API скачивания и Caddy (HTTPS). Музыка лежит в ./data/stage только пока не передана
+# по SSH на сервер Navidrome (см. remote.py), потом удаляется. Настройки — в .env рядом.
+name: music-hub
+
+services:
+  api:
+    image: ${HUB_API_IMAGE:-ghcr.io/aut0iq/music-hub-api:latest}
+    build:
+      context: ./api
+      args:
+        REG: ${REG:-docker.io/}
+    restart: unless-stopped
+    user: "1000:1000"
+    environment:
+      HUB_TOKEN: ${HUB_TOKEN}
+      WEB_HOST: 0.0.0.0
+      WEB_PORT: "8081"
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ${HUB_MUSIC_DIR:-./data/stage}:/music
+      - ./data/hub:/data
+    expose:
+      - "8081"
+
+  caddy:
+    image: ${REG:-docker.io/}library/caddy:2
+    restart: unless-stopped
+    ports:
+      # HUB_*_BIND: «80» или «8080» — порт на всех адресах; «127.0.0.1:» — случайный порт
+      # только на localhost (так закрывается 443, когда HTTPS не нужен)
+      - "${HUB_HTTP_BIND:-80}:80"
+      - "${HUB_HTTPS_BIND:-443}:443"
+    environment:
+      HUB_ADDR: ${HUB_ADDR}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+volumes:
+  caddy_data:
+  caddy_config:

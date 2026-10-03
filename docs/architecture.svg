@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="440" viewBox="0 0 1000 440" role="img" aria-labelledby="t d">
+  <title id="t">How Coda works</title>
+  <desc id="d">The phone sets up the download server over SSH once. The server downloads music and sends it over SFTP to the Navidrome server. The player talks to Navidrome directly.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#e0b457"/>
+    </marker>
+    <marker id="arrg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8e8e99"/>
+    </marker>
+  </defs>
+  <style>
+    .box { fill:#1c1c20; stroke:#34343d; stroke-width:1.5 }
+    .gold { stroke:#e0b457 }
+    .h { font:700 20px Inter,'Segoe UI',Helvetica,Arial,sans-serif; fill:#ebebee }
+    .t { font:400 14.5px Inter,'Segoe UI',Helvetica,Arial,sans-serif; fill:#a9a9b3 }
+    .l { font:600 13.5px Inter,'Segoe UI',Helvetica,Arial,sans-serif; fill:#e0b457 }
+    .g { font:400 13px Inter,'Segoe UI',Helvetica,Arial,sans-serif; fill:#8e8e99 }
+  </style>
+  <rect width="1000" height="440" rx="22" fill="#141416"/>
+  <rect x="0.5" y="0.5" width="999" height="439" rx="21.5" fill="none" stroke="#34343d"/>
+
+  <!-- телефон -->
+  <rect class="box gold" x="40" y="150" width="190" height="140" rx="16"/>
+  <text class="h" x="64" y="190">Phone</text>
+  <text class="t" x="64" y="214">Coda app (Android)</text>
+  <text class="t" x="64" y="236">Телефон · приложение</text>
+  <text class="g" x="64" y="268">SSH password: used once</text>
+
+  <!-- сервер скачивания -->
+  <rect class="box gold" x="380" y="110" width="240" height="220" rx="16"/>
+  <text class="h" x="404" y="150">Download server</text>
+  <text class="t" x="404" y="172">Сервер скачивания</text>
+  <text class="t" x="404" y="208">• Deezer search · yt-dlp</text>
+  <text class="t" x="404" y="230">• tags, covers, dedupe</text>
+  <text class="t" x="404" y="252">• queue · mini-app · API</text>
+  <text class="t" x="404" y="274">• Docker · Caddy (HTTPS)</text>
+  <text class="g" x="404" y="310">public IP</text>
+
+  <!-- сервер Navidrome -->
+  <rect class="box" x="770" y="110" width="200" height="220" rx="16"/>
+  <text class="h" x="794" y="150">Navidrome</text>
+  <text class="t" x="794" y="172">Сервер с Navidrome</text>
+  <text class="t" x="794" y="208">• your music folder</text>
+  <text class="t" x="794" y="230">• library scan</text>
+  <text class="t" x="794" y="252">• Subsonic API</text>
+  <text class="g" x="794" y="310">public IP</text>
+
+  <!-- стрелки -->
+  <line x1="232" y1="205" x2="376" y2="205" stroke="#e0b457" stroke-width="2.5" marker-end="url(#arr)"/>
+  <text class="l" x="238" y="190">1 · SSH</text>
+  <text class="g" x="238" y="226">install + HTTPS API</text>
+
+  <line x1="622" y1="205" x2="766" y2="205" stroke="#e0b457" stroke-width="2.5" marker-end="url(#arr)"/>
+  <text class="l" x="634" y="190">2 · SFTP</text>
+  <text class="g" x="626" y="226">over SSH, key auth</text>
+
+  <!-- плеер -->
+  <rect class="box" x="770" y="370" width="200" height="50" rx="14"/>
+  <text class="h" x="794" y="402" style="font-size:17px">Player · vici</text>
+  <path d="M870 372 L870 334" stroke="#8e8e99" stroke-width="2" marker-end="url(#arrg)" fill="none"/>
+  <text class="g" x="880" y="356">3 · Subsonic</text>
+
+  <text class="g" x="40" y="396">Same server for both? Tick “Navidrome on this server” — Docker installs Navidrome next to the downloader.</text>
+  <text class="g" x="40" y="416">Всё на одном сервере? Поставь галочку «Navidrome на этом же сервере».</text>
+</svg>
