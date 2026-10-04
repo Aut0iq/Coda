@@ -1,171 +1,310 @@
-<div align="center">
+<p align="center">
+  <img src="docs/banner.svg" alt="Coda" width="100%">
+</p>
 
-<img src="docs/banner.svg" alt="Coda — your own music server, set up from your phone" width="100%">
+<p align="center">
+  <a href="https://github.com/Aut0iq/Coda/releases/latest"><img src="https://img.shields.io/github/v/release/Aut0iq/Coda?style=flat-square&color=E6BD55&label=release" alt="Latest release"></a>
+  <a href="https://github.com/Aut0iq/Coda/actions/workflows/apk.yml"><img src="https://img.shields.io/github/actions/workflow/status/Aut0iq/Coda/apk.yml?style=flat-square&label=build" alt="Build"></a>
+  <a href="https://github.com/Aut0iq/Coda/actions/workflows/server.yml"><img src="https://img.shields.io/github/actions/workflow/status/Aut0iq/Coda/server.yml?style=flat-square&label=server" alt="Server tests"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-E6BD55?style=flat-square" alt="MIT"></a>
+  <img src="https://img.shields.io/badge/platform-Android-3DDC84?style=flat-square" alt="Android">
+  <a href="https://www.navidrome.org/"><img src="https://img.shields.io/badge/server-Navidrome-7a2a45?style=flat-square" alt="Navidrome"></a>
+  <a href="https://github.com/Aut0iq/Vici"><img src="https://img.shields.io/badge/pairs%20with-Vici-E6BD55?style=flat-square" alt="Pairs with Vici"></a>
+</p>
 
-<br>
+<p align="center">
+  <a href="#english"><b>English</b></a> · <a href="#русский">Русский</a>
+</p>
 
-**English** · [Русский](README.ru.md)
+<p align="center">
+  <img src="docs/screens.png" alt="Coda screens" width="100%">
+</p>
+<p align="center">
+  <sub>Choosing where the music is stored · installation over SSH · transfer to the Navidrome server · credentials for the player<br>
+  Выбор места для музыки · установка по SSH · передача на сервер Navidrome · данные для плеера</sub>
+</p>
 
-[![server CI](https://github.com/aut0iq/Coda/actions/workflows/server.yml/badge.svg)](https://github.com/aut0iq/Coda/actions/workflows/server.yml)
-![Android](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)
-![Expo SDK 53](https://img.shields.io/badge/Expo-SDK%2053-000020?logo=expo&logoColor=white)
-![Docker](https://img.shields.io/badge/server-Docker-2496ED?logo=docker&logoColor=white)
-![Navidrome](https://img.shields.io/badge/works%20with-Navidrome-1d3b6e)
-[![vici](https://img.shields.io/badge/pairs%20with-vici-e0b457)](https://github.com/aut0iq/vici)
-![status](https://img.shields.io/badge/status-beta-orange)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+<p align="center">
+  <img src="docs/architecture.svg" alt="Phone, download server, Navidrome server, player" width="100%">
+</p>
 
-</div>
+---
 
-**Coda** is an Android app that turns a bare Linux server into a personal music downloader for
-[Navidrome](https://www.navidrome.org/). Enter the server's IP, login and password — the app connects over SSH,
-installs Docker, brings everything up, and from then on you search an artist, tap an album and the tracks land
-in your Navidrome library with proper tags and covers.
+## English
 
-> **Pairs with [vici](https://github.com/aut0iq/vici).** Coda fills your Navidrome library; **vici** is the
-> music player to listen to it (it works with Navidrome and any Subsonic API server). Use them together:
-> Coda downloads, vici plays — and since both speak the Subsonic API, any other Subsonic client works too.
+**Coda** is an Android app that sets up your own server for downloading music into [Navidrome]. You enter the address, login and password of a Linux server; the app connects over SSH, installs everything that is needed and then works with that server: you search for an artist, choose an album, and the tracks appear in your Navidrome library with tags and covers.
 
-<div align="center">
-<img src="docs/screens.png" alt="Coda screenshots: choosing where the music goes, installing over SSH, transfers to Navidrome, player credentials" width="100%">
-</div>
+> **Pairs with [Vici](https://github.com/Aut0iq/Vici).** Coda fills your Navidrome library; **Vici** is the player you listen to it in. Once the two are connected, search in Vici also shows songs and albums that are not on your server yet and lets you add them with a tap. Coda works on its own too: any Subsonic client can play the library.
 
-> The app and its mini-app are currently in **Russian only**.
+The interface of the app is currently available in Russian only.
 
-## Highlights
+### Features
 
-- **Set up from the phone** — IP, login, password. No terminal: Docker, containers, HTTPS certificate, the lot.
-- **One server or two** — Navidrome next to the downloader, **or** on a different server: the downloader
-  logs in to the Navidrome server over SSH on its own and drops the files into the folder you choose there.
-- **You pick the folder** where the music is stored, in both layouts.
-- **Smart downloading** — search through Deezer, audio via yt-dlp (YouTube → SoundCloud → cookies for 18+ →
-  your proxies), exact matching by duration/title, tags and covers, skip duplicates and live versions
-  (checked against your Navidrome), playlists per artist, a persistent queue that survives restarts.
-- **Robust** — the install keeps running on the server if your phone sleeps or the connection drops, and the app
-  reconnects; music is never lost if the Navidrome server is temporarily offline — it waits and is sent later.
-- **Honest about blocks** — if the server is in a country where YouTube/Deezer/Docker registries are blocked or
-  throttled (e.g. Russia), the app says so and suggests a VPN on the server or [zapret](https://github.com/bol-van/zapret).
-- **Safe by default** — the SSH password is never stored, the API is protected by a token, host keys are pinned.
+#### Setup
 
-## How it works
+- **Installation from the phone.** No terminal is needed: the app checks the server, installs Docker, starts the containers and issues an HTTPS certificate.
+- **One server or two.** Navidrome can be installed next to the downloader, or it can live on a separate server: the download server then logs in to it over SSH on its own and places the files in the folder you specify.
+- **Your own music folder** in both layouts. The choice is kept across updates.
+- **Updates and removal.** Running the installation again updates the server and keeps the token, passwords and data. The uninstaller never touches a music folder outside the installation directory.
 
-<div align="center">
-<img src="docs/architecture.svg" alt="Phone → download server → Navidrome server → player" width="100%">
-</div>
+#### Downloading
 
-1. **SSH, once.** The phone connects to the *download server*, uploads the installer and runs it. The installer
-   puts Docker and three containers in place: `api` (the downloader), `caddy` (HTTPS), and — in the one-server
-   layout — `navidrome`.
-2. **HTTPS afterwards.** The app talks to the downloader's API with a token (the token was handed to the phone
-   over the SSH session, never over the network). The working screen is a small web app served by the downloader.
-3. **Two servers?** You also give the Navidrome server's SSH login once. The downloader generates its own key,
-   places it in that server's `authorized_keys`, verifies key login, and from then on never needs the password.
-   Files are sent over SFTP under a temporary name and renamed only after the size is verified, so Navidrome never
-   sees half-written files; after success the local copy is deleted.
-4. **Listen.** Point **[vici](https://github.com/aut0iq/vici)** (or any Subsonic client) at your Navidrome.
+- **Search through Deezer**, audio through [yt-dlp]: YouTube first, then SoundCloud, account cookies for age-restricted tracks and your own proxies as fallbacks.
+- **Accurate matching** by duration, title and channel, with tags and cover art written to every file.
+- **Duplicates and live versions are skipped**: each track is checked against your Navidrome library first.
+- **Playlists per artist** are created in Navidrome automatically.
+- **A persistent queue** that continues after a restart of the server.
 
-## Download
+#### Reliability
 
-Grab the APK from the [**latest release**](https://github.com/aut0iq/Coda/releases/latest) — every release has a
-build for each CPU architecture, plus a universal one:
+- **The installation survives a lost connection.** It runs on the server independently of the phone; the app reconnects and continues reading the log from where it stopped.
+- **Music is not lost when the Navidrome server is offline.** Files wait on the download server and are sent later, automatically or on request.
+- **Safe transfer.** A file is uploaded under a temporary name and renamed only after its size is verified, so Navidrome never sees a partial file.
+- **Network restrictions are reported.** If YouTube, Deezer or the Docker registries are blocked or throttled for the server, the app says so and suggests a VPN on the server or [zapret].
 
-| File | Choose it for |
+#### Security
+
+- **The SSH password is never stored.** It is kept in memory during the installation only.
+- **Key-based access between servers.** The password of the Navidrome server is used once; after that the download server logs in with its own key.
+- **Host keys are pinned** at the first connection and verified on every subsequent one.
+- **The API is protected by a token**, which is handed to the phone over SSH and stored in the system secure storage. Repeated wrong tokens block the address temporarily.
+
+### Requirements
+
+- **Download server:** Linux, x86_64 or arm64, SSH access with a password for `root` or a user with `sudo`. Tested on Ubuntu 24.04; other Debian-family systems are expected to work.
+- **Ports:** 80 and 443 for HTTPS, or a single port of your choice without HTTPS.
+- **Navidrome server (two-server layout only):** Navidrome is already running; SSH with password login is available at least during setup; SFTP is enabled; the SSH user can write to the folder that Navidrome uses as its library; the Navidrome address is reachable from the download server.
+
+### Installation
+
+Download the APK from the [latest release](https://github.com/Aut0iq/Coda/releases/latest) and open it on your device.
+
+| File | Device |
 |---|---|
-| `coda-<version>-arm64-v8a.apk` | Almost every phone and tablet made after ~2017 — **start here** |
-| `coda-<version>-armeabi-v7a.apk` | Older 32-bit ARM devices |
-| `coda-<version>-x86_64.apk` | Android emulators on a PC, Chromebooks, x86 tablets |
-| `coda-<version>-x86.apk` | Old 32-bit x86 devices and emulators |
-| `coda-<version>-universal.apk` | Not sure which one? Works everywhere, ~2.5× bigger |
+| `coda-*-arm64-v8a.apk` | Almost every phone and tablet released after 2017. Recommended. |
+| `coda-*-armeabi-v7a.apk` | Older 32-bit ARM devices. |
+| `coda-*-x86_64.apk` | Android emulators, Chromebooks, x86 tablets. |
+| `coda-*-x86.apk` | Old 32-bit x86 devices and emulators. |
+| `coda-*-universal.apk` | Any of the above. The file is about 2.5 times larger. |
 
-Open the file on the device and allow “install unknown apps” for the app you opened it from. `SHA256SUMS.txt` is
-attached to verify the download. The APKs are signed with the standard Android debug key — fine for sideloading,
-not for Google Play.
+`SHA256SUMS.txt` is attached to every release. The APKs are signed with the standard Android debug key, which is suitable for direct installation but not for Google Play.
 
-## Quick start
+### Getting started
 
-1. Install the APK (see above) — or build it yourself (see below).
-2. Open **Coda**, tap *Connect server*, enter the IP / login / password of a fresh Linux server
-   (tested on Ubuntu 24.04, other Debian-family systems should work; root or a user with `sudo`) and tap *Check server*.
-3. Choose the layout:
-   - leave **“Navidrome on this server”** ticked — Navidrome is installed next to the downloader
-     (optionally set your own music folder), **or**
-   - untick it and enter the Navidrome server's address, SSH login/password, the library folder on it, and
-     Navidrome's own address and login.
-4. Tap *Install*. When it says *Done*, open the server, search an artist, pick an album.
-5. In the app menu you'll find the Navidrome address and credentials to enter into **vici**.
+1. Open Coda and press **Подключить сервер** (Connect server).
+2. Enter the address, login and password of the server and press **Проверить сервер** (Check server). The app shows the state of the server and of the network.
+3. Choose where the music is stored:
+   - keep **Navidrome на этом же сервере** (Navidrome on this server) enabled to install Navidrome next to the downloader, optionally with your own music folder;
+   - or disable it and enter the address of the Navidrome server, its SSH login and password, the library folder on it, and the address and credentials of Navidrome itself.
+4. Press **Установить** (Install). When the installation is finished, open the server, find an artist and choose an album.
 
-**Navidrome server requirements (two-server layout):** Navidrome is already running; SSH with password login
-(at least during setup) and SFTP enabled (no shell needed); the SSH user can write to the folder that Navidrome
-uses as its library. Installing Navidrome on that server from the app is not implemented yet.
+#### Connecting Vici
 
-## Build from source
+The app menu contains the address, login and password of Navidrome: enter them in Vici or in any other Subsonic client. To let Vici search for music that is not in the library yet, press **Подключить vici** in the same menu, or enter the Coda address and token in Vici under *Settings → Coda*.
 
-Needs Node 22, JDK 17, the Android SDK (`ANDROID_HOME`), and [deno](https://deno.com) for the tests.
+### How it works
+
+1. **SSH, once.** The phone connects to the download server, uploads the installer and runs it. The installer starts the containers: `api` (the downloader), `caddy` (HTTPS) and, in the one-server layout, `navidrome`.
+2. **HTTPS afterwards.** The app works with the API of the download server using a token. The main screen is a web interface served by that server, so it is updated together with the server.
+3. **Two servers.** The download server generates its own key, places it in `authorized_keys` on the Navidrome server and verifies key login. Files are transferred over SFTP; after a successful transfer the local copy is removed and Navidrome is asked to rescan the library.
+
+### Building from source
+
+You need Node.js 22, JDK 17, the Android SDK and, for the tests, [Deno].
 
 ```bash
 cd app
-npm install                 # postinstall bundles the server package into src/bundle.generated.js
-npm test                    # installer protocol, package round-trip (real bash)
+npm install     # also packs the server part into the app
+npm test
+
 npx expo prebuild --platform android --clean --no-install
 cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
-# → app/android/app/build/outputs/apk/release/app-release.apk
 ```
 
-Use `x86_64` instead of `arm64-v8a` for an emulator on a PC. After changing anything in `server/`, run
-`npm run bundle` in `app/` — the app uploads the copy stored in `src/bundle.generated.js`.
+Use `x86_64` instead of `arm64-v8a` for an emulator. After changing anything in `server/`, run `npm run bundle` in `app/`: the app uploads the copy of the server that was packed at build time.
 
-Server tests (no phone needed):
+Server tests:
 
 ```bash
-cd server/api && python -m unittest discover -s . -t . -p "test_*.py"     # 59 tests, incl. a real SSH/SFTP server
-deno run --allow-read server/api/tests/ui_test.js                          # mini-app rendering
+cd server/api
+pip install -r requirements.txt
+python -m unittest discover -s . -t . -p "test_*.py"
 ```
 
-CI: `server` (tests, image to GHCR) on pushes to `server/**`; `apk` builds one APK per architecture plus a universal one
-and publishes them to the release page when you push a `v*` tag (the tag must match the version in `app/package.json`).
-
-## Repository layout
-
-| Path | What |
+| Path | Contents |
 |---|---|
-| `app/` | Android app — Expo 53 / React Native 0.79. Native screens (servers, connect, install); the main UI is the mini-app served by your server. `modules/hub-ssh` is a small Kotlin SSH module on JSch (mwiede fork). |
-| `server/api/` | The downloader: Deezer + yt-dlp + tags + dedupe + playlists, HTTP API, token auth, network-block detection, `remote.py` (transfer to another server). |
-| `server/deploy/` | Installer package: `install.sh` (idempotent — also the updater), `preflight.sh`, `uninstall.sh`, compose and Caddy files for both layouts. |
-| `docs/` | Banner, diagram, screenshots. |
+| `app/` | The Android app: Expo 53, React Native 0.79 and a Kotlin SSH module. |
+| `server/api/` | The downloader, its HTTP API and the web interface. |
+| `server/deploy/` | The installer, the uninstaller, Docker Compose and Caddy files. |
 
-Internal names (`music-hub`, `/opt/music-hub`, the `music-hub-api` image) come from the project's earlier name and
-are kept so existing installs keep working.
+Releases are built by GitHub Actions: pushing a tag `v*` that matches the version in `app/package.json` publishes the APKs.
 
-## Status
+### Limitations
 
-Verified end-to-end on an Android emulator against clean Ubuntu 24.04 servers: install, update, uninstall,
-connection loss in the middle of an install, one-server and two-server layouts (including an offline Navidrome
-server and recovery), custom music folder, real downloads into Navidrome.
+- HTTPS with a Let's Encrypt certificate, installation of Docker on a server that does not have it, RHEL-family and arm64 servers have not been verified on real machines yet.
+- In the two-server layout, requests to Navidrome (duplicate check, rescan, playlists) go from the download server directly to the Navidrome address, not through SSH.
+- Installing Navidrome on a separate server from the app is not supported: it has to be running already.
+- Without HTTPS the token is sent in clear text; the app warns about this.
 
-**Not verified yet:** HTTPS via Let's Encrypt (needs a public IP), installing Docker from scratch on a systemd
-host, RHEL-family and arm64 servers, Navidrome behind a reverse proxy with a domain, the first GitHub Actions run.
-In the two-server layout, requests from the downloader to Navidrome (dedupe, rescan, playlists) go straight to
-Navidrome's address over HTTP(S) — not through the SSH tunnel — so that address must be reachable from the
-download server.
+### Responsible use
 
-## Security notes
+Coda is a tool for building a personal music library. You are responsible for the content you download and for complying with the terms of the services involved and with the laws that apply to you.
 
-- The SSH password lives only in memory during setup; the Navidrome server's password is sent through the open
-  SSH session's stdin, not as a command argument and not over HTTP.
-- Without HTTPS (ports 80/443 busy) the token travels in clear text; the app warns about it.
-- 10 wrong tokens in 10 minutes block the address for 5 minutes.
+### Credits
 
-## License
+- [Navidrome], the music server.
+- [yt-dlp], the downloader.
+- [Caddy], the web server that issues HTTPS certificates.
+- [asyncssh] and [JSch](https://github.com/mwiede/jsch), the SSH libraries.
+- [Expo](https://expo.dev/) and React Native.
+- [Vici](https://github.com/Aut0iq/Vici), the player Coda is paired with.
 
-[MIT](LICENSE) © 2026 aut0iq
+### License
 
-## Responsible use
+Coda is released under the [MIT](LICENSE) license © 2026 [Aut0iq](https://github.com/Aut0iq).
 
-Coda is a tool for building a personal library. You are responsible for the content you download and for
-complying with the terms of the services involved and the laws that apply to you.
+You are free to use, modify and distribute the code, including in your own projects, as long as the copyright notice and the license text are kept.
 
-## Credits
+---
 
-[Navidrome](https://www.navidrome.org/) · [yt-dlp](https://github.com/yt-dlp/yt-dlp) · [Caddy](https://caddyserver.com/) ·
-[asyncssh](https://github.com/ronf/asyncssh) · [JSch (mwiede fork)](https://github.com/mwiede/jsch) ·
-[Expo](https://expo.dev/) · and [**vici**](https://github.com/aut0iq/vici), the player that goes with it.
+## Русский
+
+**Coda** — приложение для Android, которое разворачивает ваш собственный сервер для скачивания музыки в [Navidrome]. Вы указываете адрес, логин и пароль Linux-сервера; приложение подключается по SSH, устанавливает всё необходимое и дальше работает с этим сервером: вы находите исполнителя, выбираете альбом, и треки появляются в вашей фонотеке Navidrome с тегами и обложками.
+
+> **Работает в паре с [Vici](https://github.com/Aut0iq/Vici).** Coda пополняет фонотеку Navidrome, а **Vici** — плеер, в котором её слушают. Когда они подключены друг к другу, поиск в Vici показывает ещё и песни с альбомами, которых на сервере пока нет, — их можно добавить одним нажатием. Coda работает и сама по себе: фонотеку воспроизведёт любой клиент Subsonic.
+
+Интерфейс приложения пока доступен только на русском языке.
+
+### Возможности
+
+#### Установка
+
+- **Установка с телефона.** Терминал не нужен: приложение проверяет сервер, устанавливает Docker, запускает контейнеры и выпускает сертификат HTTPS.
+- **Один сервер или два.** Navidrome можно установить рядом со скачиванием, а можно держать на отдельном сервере: тогда сервер скачивания сам подключается к нему по SSH и кладёт файлы в указанную вами папку.
+- **Своя папка для музыки** в обоих вариантах. Выбор сохраняется при обновлениях.
+- **Обновление и удаление.** Повторный запуск установки обновляет сервер и сохраняет токен, пароли и данные. Удаление не затрагивает папку с музыкой, если она находится вне каталога установки.
+
+#### Скачивание
+
+- **Поиск через Deezer**, звук через [yt-dlp]: сначала YouTube, затем SoundCloud; для роликов с возрастным ограничением используются cookies аккаунта, а ваши прокси служат запасным путём.
+- **Точный подбор** по длительности, названию и каналу; в каждый файл записываются теги и обложка.
+- **Дубли и концертные версии пропускаются**: каждый трек сначала сверяется с вашей фонотекой Navidrome.
+- **Плейлисты по исполнителям** создаются в Navidrome автоматически.
+- **Очередь сохраняется** и продолжается после перезапуска сервера.
+
+#### Надёжность
+
+- **Установка не зависит от связи.** Она идёт на сервере независимо от телефона; приложение переподключается и продолжает читать журнал с того места, где остановилось.
+- **Музыка не теряется, если сервер Navidrome недоступен.** Файлы ждут на сервере скачивания и передаются позже — автоматически или по запросу.
+- **Безопасная передача.** Файл загружается под временным именем и переименовывается только после проверки размера, поэтому Navidrome не видит недописанных файлов.
+- **Сообщение о сетевых ограничениях.** Если YouTube, Deezer или реестры Docker для сервера недоступны или замедлены, приложение сообщает об этом и предлагает VPN на сервере или [zapret].
+
+#### Безопасность
+
+- **Пароль SSH нигде не сохраняется.** Он находится в памяти только во время установки.
+- **Доступ между серверами по ключу.** Пароль сервера Navidrome используется один раз; после этого сервер скачивания входит по собственному ключу.
+- **Ключи серверов запоминаются** при первом подключении и проверяются при каждом следующем.
+- **API защищён токеном**, который передаётся телефону по SSH и хранится в защищённом хранилище системы. Повторные неверные токены временно блокируют адрес.
+
+### Требования
+
+- **Сервер скачивания:** Linux, x86_64 или arm64, доступ по SSH с паролем для `root` или пользователя с `sudo`. Проверено на Ubuntu 24.04; другие системы семейства Debian должны подойти.
+- **Порты:** 80 и 443 для HTTPS либо один порт по вашему выбору без HTTPS.
+- **Сервер Navidrome (только для варианта с двумя серверами):** Navidrome уже работает; вход по SSH с паролем доступен хотя бы на время настройки; SFTP включён; пользователь SSH может писать в папку, которую Navidrome использует как фонотеку; адрес Navidrome доступен с сервера скачивания.
+
+### Установка
+
+Скачайте APK со страницы [последнего релиза](https://github.com/Aut0iq/Coda/releases/latest) и откройте его на устройстве.
+
+| Файл | Устройство |
+|---|---|
+| `coda-*-arm64-v8a.apk` | Почти любой телефон и планшет, выпущенный после 2017 года. Рекомендуется. |
+| `coda-*-armeabi-v7a.apk` | Старые 32-битные устройства на ARM. |
+| `coda-*-x86_64.apk` | Эмуляторы Android, Chromebook, планшеты на x86. |
+| `coda-*-x86.apk` | Старые 32-битные устройства на x86 и эмуляторы. |
+| `coda-*-universal.apk` | Любое из перечисленных. Файл примерно в 2,5 раза больше. |
+
+К каждому релизу приложен `SHA256SUMS.txt`. APK подписаны стандартным отладочным ключом Android: он подходит для установки напрямую, но не для Google Play.
+
+### Начало работы
+
+1. Откройте Coda и нажмите **Подключить сервер**.
+2. Введите адрес, логин и пароль сервера и нажмите **Проверить сервер**. Приложение покажет состояние сервера и сети.
+3. Выберите, где будет храниться музыка:
+   - оставьте включённым **Navidrome на этом же сервере**, чтобы установить Navidrome рядом со скачиванием, при желании указав свою папку для музыки;
+   - либо отключите его и введите адрес сервера Navidrome, логин и пароль SSH, папку фонотеки на нём, а также адрес и учётные данные самого Navidrome.
+4. Нажмите **Установить**. Когда установка завершится, откройте сервер, найдите исполнителя и выберите альбом.
+
+#### Подключение Vici
+
+В меню приложения указаны адрес, логин и пароль Navidrome: введите их в Vici или в любом другом клиенте Subsonic. Чтобы Vici мог искать музыку, которой ещё нет в фонотеке, нажмите **Подключить vici** в том же меню либо введите адрес и токен Coda в Vici в разделе *Настройки → Coda*.
+
+### Как это работает
+
+1. **SSH — один раз.** Телефон подключается к серверу скачивания, загружает установщик и запускает его. Установщик запускает контейнеры: `api` (скачивание), `caddy` (HTTPS) и, при варианте с одним сервером, `navidrome`.
+2. **Дальше — HTTPS.** Приложение работает с API сервера скачивания по токену. Основной экран — веб-интерфейс, который отдаёт сам сервер, поэтому он обновляется вместе с сервером.
+3. **Два сервера.** Сервер скачивания создаёт собственный ключ, помещает его в `authorized_keys` на сервере Navidrome и проверяет вход по ключу. Файлы передаются по SFTP; после успешной передачи локальная копия удаляется, а Navidrome получает запрос на пересканирование фонотеки.
+
+### Сборка из исходников
+
+Нужны Node.js 22, JDK 17, Android SDK и, для тестов, [Deno].
+
+```bash
+cd app
+npm install     # заодно упаковывает серверную часть в приложение
+npm test
+
+npx expo prebuild --platform android --clean --no-install
+cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+```
+
+Для эмулятора укажите `x86_64` вместо `arm64-v8a`. После любого изменения в `server/` выполните `npm run bundle` в `app/`: приложение загружает на сервер ту копию серверной части, которая была упакована при сборке.
+
+Тесты сервера:
+
+```bash
+cd server/api
+pip install -r requirements.txt
+python -m unittest discover -s . -t . -p "test_*.py"
+```
+
+| Каталог | Содержимое |
+|---|---|
+| `app/` | Приложение для Android: Expo 53, React Native 0.79 и модуль SSH на Kotlin. |
+| `server/api/` | Скачивание, HTTP API и веб-интерфейс. |
+| `server/deploy/` | Установщик, скрипт удаления, файлы Docker Compose и Caddy. |
+
+Релизы собирает GitHub Actions: при отправке тега `v*`, совпадающего с версией в `app/package.json`, публикуются APK.
+
+### Ограничения
+
+- HTTPS с сертификатом Let's Encrypt, установка Docker на сервер, где его нет, серверы семейства RHEL и на arm64 пока не проверены на реальных машинах.
+- При варианте с двумя серверами запросы к Navidrome (проверка дублей, пересканирование, плейлисты) идут с сервера скачивания напрямую на адрес Navidrome, а не через SSH.
+- Установка Navidrome на отдельный сервер из приложения не поддерживается: он должен уже работать.
+- Без HTTPS токен передаётся в открытом виде; приложение предупреждает об этом.
+
+### Ответственное использование
+
+Coda — инструмент для создания личной фонотеки. Вы самостоятельно отвечаете за скачиваемое содержимое и за соблюдение условий используемых сервисов и применимого к вам законодательства.
+
+### Благодарности
+
+- [Navidrome] — музыкальный сервер.
+- [yt-dlp] — загрузчик.
+- [Caddy] — веб-сервер, выпускающий сертификаты HTTPS.
+- [asyncssh] и [JSch](https://github.com/mwiede/jsch) — библиотеки SSH.
+- [Expo](https://expo.dev/) и React Native.
+- [Vici](https://github.com/Aut0iq/Vici) — плеер, в паре с которым работает Coda.
+
+### Лицензия
+
+Coda распространяется под лицензией [MIT](LICENSE) © 2026 [Aut0iq](https://github.com/Aut0iq).
+
+Код можно свободно использовать, изменять и распространять, в том числе в своих проектах, при условии сохранения уведомления об авторских правах и текста лицензии.
+
+[Navidrome]: https://www.navidrome.org/
+[yt-dlp]: https://github.com/yt-dlp/yt-dlp
+[zapret]: https://github.com/bol-van/zapret
+[Caddy]: https://caddyserver.com/
+[asyncssh]: https://github.com/ronf/asyncssh
+[Deno]: https://deno.com/

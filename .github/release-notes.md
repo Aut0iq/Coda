@@ -19,6 +19,6 @@ APK подписаны стандартным отладочным ключом 
 встаёт поверх предыдущей версии только если подписано тем же ключом.
 
 Need help setting up a server? See the [README](https://github.com/aut0iq/Coda#readme) ·
-Нужна помощь с настройкой сервера? Смотри [README](https://github.com/aut0iq/Coda/blob/main/README.ru.md).
+Нужна помощь с настройкой сервера? Смотри [README](https://github.com/Aut0iq/Coda#русский).
 
 ---
