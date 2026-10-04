@@ -363,6 +363,25 @@ const UI = (() => {
       </div>`;
   }
 
+  /* --------------------------- обновление загрузчика --------------------------- */
+  function depsSection(p) {
+    if (!p || !p.package) return '';
+    const fresh = p.installed && p.installed !== p.running;
+    const state = !p.enabled ? 'выключено'
+      : p.error ? 'ошибка'
+      : fresh ? `скачана ${p.installed}, включится после перезапуска`
+      : p.checked_at ? `актуальная · проверено ${when(p.checked_at)}` : 'ещё не проверялось';
+    const col = p.error ? 'var(--coral)' : fresh ? 'var(--gold)' : 'var(--green)';
+    return `<h2 class="section-title">Загрузчик</h2>
+      <p class="caption left">yt-dlp обновляется сам: проверка раз в час и перед каждой загрузкой.</p>
+      <div class="kv">
+        <div><span>Версия yt-dlp</span><b>${esc(p.running || '—')}</b></div>
+        <div><span>Обновления</span><b style="color:${col}">${esc(state)}</b></div>
+      </div>
+      ${p.error ? `<p class="caption left" style="color:var(--coral)">${esc(p.error)}</p>` : ''}
+      <div class="actions"><button class="btn" type="button" data-act="deps-check">↻ Проверить обновления</button></div>`;
+  }
+
   /* -------------------------------- «Ещё» ----------------------------- */
   function more(d) {
     const v = d.settings.values;
@@ -419,10 +438,11 @@ const UI = (() => {
         <div><span>Версия</span><b>${esc(info.version || '—')}</b></div>
         <div><span>Работает</span><b>${info.uptime != null ? dur(info.uptime) : '—'}</b></div>
         <div><span>Navidrome</span><b style="color:${info.navidrome ? 'var(--green)' : 'var(--coral)'}">${info.navidrome ? 'подключён' : 'не настроен'}</b></div>
-      </div>`;
+      </div>
+      ${depsSection(d.deps)}`;
   }
 
   return { esc, img, dur, when, tracks, plural, artistCard, albumCard, albumSheet,
            activeCard, pendingRow, notice, stats, libFilter, libActions, libArtist, jobSheet,
-           netProblems, netBanner, netSection, remoteSection, size, more, BASE };
+           netProblems, netBanner, netSection, remoteSection, depsSection, size, more, BASE };
 })();

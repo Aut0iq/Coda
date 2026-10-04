@@ -498,11 +498,11 @@ $('#netbanner').addEventListener('click', (e) => {
 /* ---------------------------------- «Ещё» ---------------------------------- */
 async function loadMore() {
   try {
-    const [settings, net, cookies, info, remote] = await Promise.all([
+    const [settings, net, cookies, info, remote, deps] = await Promise.all([
       api('/api/settings'), api('/api/netcheck'), api('/api/cookies'), api('/api/info'),
-      api('/api/remote').catch(() => ({ configured: false }))]);
+      api('/api/remote').catch(() => ({ configured: false })), api('/api/deps').catch(() => null)]);
     state.net = net;
-    state.more = { settings, net, cookies, info, remote };
+    state.more = { settings, net, cookies, info, remote, deps };
     renderMore();
   } catch (err) {
     $('#more').innerHTML = `<p class="empty">Не удалось загрузить: ${UI.esc(err.message)}</p>`;
@@ -580,6 +580,17 @@ $('#more').addEventListener('click', async (e) => {
     if (await saveSettings({ proxies: list })) { toast(list.length ? 'Прокси сохранены' : 'Прокси убраны'); refreshNet(); }
   } else if (act === 'ck-pick') $('#ck-file').click();
   else if (act === 'ck-save') uploadCookies();
+  else if (act === 'deps-check') {
+    b.disabled = true;
+    try {
+      const r = await api('/api/deps/check', { method: 'POST' });
+      toast(r.error ? r.error
+        : r.restarting ? `yt-dlp обновлён до ${r.installed}, сервис перезапускается`
+        : r.restart_needed ? `yt-dlp ${r.installed} скачан, включится после текущей загрузки`
+        : `yt-dlp ${r.running} — актуальная версия`, !!r.error);
+      if (r.restarting) setTimeout(loadMore, 8000); else await loadMore();
+    } catch (err) { toast(err.message, true); b.disabled = false; }
+  }
   else if (act === 'rm-test') {
     b.disabled = true;
     try {

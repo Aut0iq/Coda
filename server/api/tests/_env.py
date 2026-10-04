@@ -16,6 +16,7 @@ os.environ["COOKIE_FILE"] = str(_TMP / "data" / "cookies.txt")
 os.environ["LIBRARY_INDEX"] = str(_TMP / "data" / "library.json")
 os.environ.setdefault("MB_TMP_DIR", str(_TMP / "music" / ".incoming"))
 os.environ["HUB_NO_BACKGROUND"] = "1"
+os.environ["HUB_AUTO_UPDATE"] = "0"      # тесты не ходят в PyPI и ничего не ставят
 os.environ["HUB_TOKEN"] = "test-token"
 for k in ("PROXY_URL", "PROXY2_URL", "PROXY_URLS"):
     os.environ.pop(k, None)

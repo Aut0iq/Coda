@@ -60,6 +60,7 @@ The interface of the app is currently available in Russian only.
 - **The installation survives a lost connection.** It runs on the server independently of the phone; the app reconnects and continues reading the log from where it stopped.
 - **Music is not lost when the Navidrome server is offline.** Files wait on the download server and are sent later, automatically or on request.
 - **Safe transfer.** A file is uploaded under a temporary name and renamed only after its size is verified, so Navidrome never sees a partial file.
+- **The downloader keeps itself up to date.** The server checks for a new yt-dlp every hour and before each download, installs it and restarts when nothing is being downloaded; the queue continues afterwards.
 - **Network restrictions are reported.** If YouTube, Deezer or the Docker registries are blocked or throttled for the server, the app says so and suggests a VPN on the server or [zapret].
 
 #### Security
@@ -197,6 +198,7 @@ You are free to use, modify and distribute the code, including in your own proje
 - **Установка не зависит от связи.** Она идёт на сервере независимо от телефона; приложение переподключается и продолжает читать журнал с того места, где остановилось.
 - **Музыка не теряется, если сервер Navidrome недоступен.** Файлы ждут на сервере скачивания и передаются позже — автоматически или по запросу.
 - **Безопасная передача.** Файл загружается под временным именем и переименовывается только после проверки размера, поэтому Navidrome не видит недописанных файлов.
+- **Загрузчик обновляется сам.** Сервер проверяет новую версию yt-dlp раз в час и перед каждой загрузкой, устанавливает её и перезапускается, когда ничего не скачивается; очередь после этого продолжается.
 - **Сообщение о сетевых ограничениях.** Если YouTube, Deezer или реестры Docker для сервера недоступны или замедлены, приложение сообщает об этом и предлагает VPN на сервере или [zapret].
 
 #### Безопасность

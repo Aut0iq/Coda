@@ -18,6 +18,7 @@ import json
 import logging
 import os
 import secrets
+import signal
 import time
 import urllib.parse
 from pathlib import Path
@@ -30,6 +31,11 @@ API_LEVEL = 1                   # растёт, когда API ломает со
 
 DATA_DIR = Path(os.environ.get("HUB_DATA", "/data"))
 MUSIC_DIR = os.environ.get("MUSIC_DIR", "/music")
+
+import deps as deps_mod  # noqa: E402
+
+# обновления yt-dlp лежат на томе данных и должны найтись раньше версии из образа — до любого импорта yt_dlp
+deps_mod.activate(DATA_DIR)
 # до импорта движка: пути, которые он читает из окружения при загрузке
 os.environ.setdefault("COOKIE_FILE", str(DATA_DIR / "cookies.txt"))
 os.environ.setdefault("LIBRARY_INDEX", str(DATA_DIR / "library.json"))
@@ -94,6 +100,7 @@ class Hub:
         self.concurrency = self.cfg.apply_live(downloader, library, playlists)
         self.store = Store(data_dir / "state.json", HISTORY_LIMIT)
         self.remote = remote_mod.Remote(data_dir)
+        self.deps = deps_mod.Deps(data_dir, restart=self.restart)
         self._remote_failing = False
         self.queue: asyncio.Queue[str] = asyncio.Queue()
         self.net = netcheck.NetCheck(data_dir / "netcheck.json",
@@ -130,6 +137,22 @@ class Hub:
             return "🔄 Navidrome: пересканирование запущено."
         except Exception as exc:
             return f"⚠️ Скан Navidrome не запустился: {exc}"
+
+    # ----------------------- обновление загрузчика -----------------------
+    @staticmethod
+    def restart() -> None:
+        """Мягко завершает сервис: Docker поднимет его заново (restart: unless-stopped), уже с новым yt-dlp."""
+        os.kill(os.getpid(), signal.SIGTERM)
+
+    async def update_before_job(self) -> bool:
+        """Перед загрузкой: вышел новый yt-dlp — ставим и перезапускаемся. -> True, если начат перезапуск
+        (задача при этом остаётся в очереди на диске и продолжится после запуска)."""
+        try:
+            await self.deps.refresh(max_age=deps_mod.FRESH_FOR)
+        except Exception as exc:
+            log.warning("проверка обновлений перед загрузкой не прошла: %s", exc)
+            return False
+        return self.deps.restart_if_needed()
 
     # ------------------- передача на сервер Navidrome -------------------
     @property
@@ -291,6 +314,8 @@ class Hub:
         store = self.store
         while True:
             job_id = await self.queue.get()
+            if any(j["id"] == job_id for j in store.pending) and await self.update_before_job():
+                return                           # сервис перезапускается, очередь продолжится после него
             job = store.start(job_id)
             if job is None:                  # отменили, пока стояла в очереди
                 self.queue.task_done()
@@ -421,7 +446,8 @@ class Hub:
         self.tasks = [loop.create_task(self.worker()),
                       loop.create_task(self.cookie_watch()),
                       loop.create_task(self.net.watch()),
-                      loop.create_task(self.remote_watch())]
+                      loop.create_task(self.remote_watch()),
+                      loop.create_task(self.deps.watch(lambda: not self.store.active and not self.store.pending))]
 
     async def stop_background(self) -> None:
         for t in self.tasks:
@@ -464,8 +490,24 @@ async def api_info(request: web.Request) -> web.Response:
         "name": "music-hub", "version": VERSION, "api": API_LEVEL,
         "uptime": int(time.time() - h.started),
         "navidrome": h.navidrome_ready,
-        "role": h.role,                       # local — Navidrome здесь же; remote — музыка уходит на другой сервер
+        "role": h.role,
+        "ytdlp": h.deps.running,                       # local — Navidrome здесь же; remote — музыка уходит на другой сервер
     })
+
+
+async def api_deps_get(request: web.Request) -> web.Response:
+    return web.json_response(hub_of(request).deps.info())
+
+
+async def api_deps_check(request: web.Request) -> web.Response:
+    """«Проверить обновления»: сверяется с PyPI сейчас; перезапуск — только если ничего не качается."""
+    h = hub_of(request)
+    info = await h.deps.refresh(force=True)
+    idle = not h.store.active and not h.store.pending
+    if info["restart_needed"] and idle:
+        info["restarting"] = True
+        asyncio.get_running_loop().call_later(1.0, h.deps.restart_if_needed)   # сначала ответим приложению
+    return web.json_response(info)
 
 
 async def api_remote_get(request: web.Request) -> web.Response:
@@ -869,6 +911,8 @@ def build_app(hub: Hub, token: str) -> web.Application:
         web.post("/api/playlists", api_playlists),
         web.post("/api/retry_failed", api_retry_failed),
         web.post("/api/history/remove", api_history_remove),
+        web.get("/api/deps", api_deps_get),
+        web.post("/api/deps/check", api_deps_check),
         web.get("/api/remote", api_remote_get),
         web.post("/api/remote/test", api_remote_test),
         web.post("/api/remote/sync", api_remote_sync),

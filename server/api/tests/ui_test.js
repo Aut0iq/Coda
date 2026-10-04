@@ -94,6 +94,14 @@ ok(UI.activeCard({ id: 'a', album_name: 'A', album_artist: 'B', total: 3, done: 
   .includes('Передаю на сервер Navidrome: 1 из 3'), 'карточка задачи: прогресс передачи');
 ok(!UI.activeCard({ id: 'a', album_name: 'A', album_artist: 'B', total: 3, done: 1, stage: 'downloading' }).includes('Передаю'),
    'при обычной загрузке строки про передачу нет');
+// --- обновление загрузчика ---
+ok(UI.depsSection(null) === '' && !more.includes('Загрузчик'), 'нет данных об обновлениях — нет блока');
+const dp = UI.depsSection({ enabled: true, package: 'yt-dlp', running: '2026.09.01', installed: '2026.09.01', checked_at: 1790000000, error: '' });
+ok(dp.includes('2026.09.01') && dp.includes('актуальная') && dp.includes('data-act="deps-check"'), 'загрузчик: версия, статус, кнопка');
+ok(UI.depsSection({ enabled: true, package: 'yt-dlp', running: '2026.09.01', installed: '2026.10.01', checked_at: 1 })
+  .includes('скачана 2026.10.01, включится после перезапуска'), 'загрузчик: новая версия ждёт перезапуска');
+ok(UI.depsSection({ enabled: true, package: 'yt-dlp', running: '1', installed: '1', error: 'PyPI <недоступен>' })
+  .includes('PyPI &lt;недоступен&gt;'), 'загрузчик: ошибка показана и экранирована');
 ok(UI.netSection({ running: true, result: null }).includes('disabled'), 'идёт проверка — кнопка заблокирована');
 ok(UI.netSection(null).includes('ещё не выполнялась'), 'нет данных о сети');
 
