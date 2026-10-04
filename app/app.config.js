@@ -3,7 +3,7 @@ export default {
   expo: {
     name: 'Coda',
     slug: 'music-hub',
-    version: '0.1.1',
+    version: '0.1.2',
     orientation: 'portrait',
     userInterfaceStyle: 'dark',
     backgroundColor: '#141416',
@@ -13,7 +13,7 @@ export default {
     platforms: ['android'],
     android: {
       package: 'com.aut0iq.musichub',
-      versionCode: 2,
+      versionCode: 3,
       backgroundColor: '#141416',
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
